@@ -9,7 +9,9 @@
 #include <vector>
 
 bool is_valid(const std::vector<int>& list) {
-    bool ascending = list[0] < list[1];
+    if(list.size() == 1) return true;
+    bool ascending = list.at(1) < list.at(2);
+
     auto values = std::views::adjacent_transform<2>(list, [ascending](int a, int b) {
         if(ascending) {
             return b - a <= 3 && b - a >= 1 ;
@@ -33,7 +35,6 @@ int main() {
         std::string val;
         std::vector<int> values (( std::istream_iterator<int>( iss ) ), ( std::istream_iterator<int>() ));
         num_valid += is_valid(values);
-
     }
     std::cout << num_valid << '\n';
 
