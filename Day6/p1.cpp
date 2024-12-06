@@ -103,7 +103,10 @@ int main() {
 
     while(true) {
         if(!grid.inBounds(position + direction)) break;
-        if(grid.at(position + direction) == '#') direction.rotate90();
+        if(grid.at(position + direction) == '#') {
+            direction.rotate90();
+            continue;
+        }
 
         position += direction;
 
