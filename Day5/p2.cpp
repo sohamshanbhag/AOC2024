@@ -63,7 +63,7 @@ int main() {
     }
 
 
-    std::vector<std::vector<int>> corrected_orders = {};
+    long int sum = 0;
 
     for(auto present_order: incorrect_orders) {
 
@@ -75,20 +75,12 @@ int main() {
                     temp_parents[elem].insert(elem2);
                 }
             }
+            if(temp_parents[elem].size() == present_order.size()/2) sum += elem;
+            // Faster by choosing next element according to if size > size()/2
         }
-
-        std::vector<int> new_order(present_order.size());
-        for(auto [elem, val]: temp_parents) {
-            new_order.at(val.size()) = elem;
-        }
-
-        corrected_orders.push_back(new_order);
-
     }
 
 
-    long int sum = 0;
-    for(auto elem: corrected_orders) sum += elem.at(elem.size()/2);
     std::println("{}", sum);
 
 
