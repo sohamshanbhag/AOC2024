@@ -15,8 +15,7 @@ struct Vector2D {
     void operator+=(const Vector2D& other) { x += other.x; y += other.y; }
     void rotate90() {
         int tempx = x;
-        int tempy = y;
-        x = tempy;
+        x = y;
         y = -tempx;
     }
     void print() { std::println("{} {}",  x, y); }
@@ -67,11 +66,15 @@ public:
         return false;
     }
 
-    void visit(const Vector2D& pos, const Vector2D& dir) {
+    void visit_with_dir(const Vector2D& pos, const Vector2D& dir) {
         if (dir.x == 1  && dir.y == 0 ) at(pos) += 0b0001;
         else if (dir.x == -1 && dir.y == 0 ) at(pos) += 0b0010;
         else if (dir.x == 0  && dir.y == 1 ) at(pos) += 0b0100;
         else if (dir.x == 0  && dir.y == -1) at(pos) += 0b1000;
+    }
+
+    void visit(const Vector2D& pos) {
+        at(pos) = 'X';
     }
 
     void print() {
@@ -120,7 +123,6 @@ int main() {
         }
         grid.addRow(input_line);
     }
-    grid.visit(position, direction);
     Grid orig_grid = grid;
     Vector2D orig_position = position;
     Vector2D orig_direction = direction;
@@ -128,10 +130,12 @@ int main() {
     std::vector<Vector2D> visited_positions = {};
     while(true) {
         if(!grid.inBounds(position + direction)) break;
-        if(grid.at(position + direction) == '#') direction.rotate90();
+        if(grid.at(position + direction) == '#') {
+            direction.rotate90();
+            continue;
+        }
         position += direction;
         visited_positions.push_back(position);
-        grid.visit(position, direction);
     }
 
     size_t obstacle_pos = 0;
@@ -152,12 +156,10 @@ int main() {
                     is_loop = true;
                     break;
                 }
-                continue;
+                grid.visit_with_dir(position, direction);
+            } else {
+                position += direction;
             }
-
-            position += direction;
-
-            grid.visit(position, direction);
         }
         if(is_loop) {
             auto point = visited_positions.at(obstacle_pos);
