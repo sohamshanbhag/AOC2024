@@ -41,12 +41,12 @@ public:
         grid.insert(grid.end(), line.cbegin(), line.cend());
     }
 
-    char& at(size_t i, size_t j) {
-        return grid.at(i*width + j);
+    char& at(int i, int j) {
+        return at({i, j});
     }
 
     char& at(const Vector2D& pos) {
-        return at(pos.x, pos.y);
+        return grid[pos.x*width + pos.y];
     }
 
     bool inBounds(const Vector2D& pos) {
@@ -102,14 +102,13 @@ int main() {
 
 
     while(true) {
-        if(!grid.inBounds(position + direction)) break;
-        if(grid.at(position + direction) == '#') {
+        auto new_pos = position + direction;
+        if(!grid.inBounds(new_pos)) break;
+        if(grid.at(new_pos) == '#') {
             direction.rotate90();
             continue;
         }
-
-        position += direction;
-
+        position = new_pos;
         grid.at(position) = 'X';
     }
 
