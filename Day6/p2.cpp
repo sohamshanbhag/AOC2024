@@ -140,23 +140,21 @@ int main() {
         visited_positions.push_back(position);
     }
 
-    size_t obstacle_pos = 0;
     std::unordered_set<int> loop_points {};
     auto width = grid.getWidth();
 
-    while(obstacle_pos != visited_positions.size()) {
+    for(const auto& obstacle: visited_positions) {
         grid = orig_grid;
         position = orig_position;
         direction = orig_direction;
-        grid.at(visited_positions.at(obstacle_pos)) = '#';
-        bool is_loop = false;
+        grid.at(obstacle) = '#';
         while(true) {
             auto new_pos = position + direction;
             if(!grid.inBounds(new_pos)) break;
             if(grid.at(new_pos) == '#') {
                 direction.rotate90();
                 if(grid.is_visited(position, direction)) {
-                    is_loop = true;
+                    loop_points.insert(obstacle.x*width + obstacle.y);
                     break;
                 }
                 grid.visit_with_dir(position, direction);
@@ -164,11 +162,6 @@ int main() {
                 position = new_pos;
             }
         }
-        if(is_loop) {
-            auto point = visited_positions.at(obstacle_pos);
-            loop_points.insert(point.x*width + point.y);
-        }
-        ++obstacle_pos;
     }
 
     std::println("{}", loop_points.size());
