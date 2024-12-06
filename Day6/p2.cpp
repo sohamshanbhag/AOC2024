@@ -47,7 +47,8 @@ public:
     }
 
     char& at(const Vector2D& pos) {
-        return grid.at(pos.x * width + pos.y);
+        // return grid.at(pos.x * width + pos.y);
+        return grid[pos.x * width + pos.y];
     }
 
     bool inBounds(const Vector2D& pos) {
