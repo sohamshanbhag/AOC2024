@@ -148,15 +148,15 @@ int main() {
             if(!grid.inBounds(position + direction)) break;
             if(grid.at(position + direction) == '#') {
                 direction.rotate90();
+                if(grid.is_visited(position, direction)) {
+                    is_loop = true;
+                    break;
+                }
                 continue;
             }
 
             position += direction;
 
-            if(grid.is_visited(position, direction)) {
-                is_loop = true;
-                break;
-            }
             grid.visit(position, direction);
         }
         if(is_loop) {
