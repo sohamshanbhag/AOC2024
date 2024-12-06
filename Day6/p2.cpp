@@ -42,12 +42,12 @@ public:
         grid.insert(grid.end(), line.cbegin(), line.cend());
     }
 
-    char& at(size_t i, size_t j) {
-        return grid.at(i*width + j);
+    char& at(int i, int j) {
+        return at({i, j});
     }
 
     char& at(const Vector2D& pos) {
-        return at(pos.x, pos.y);
+        return grid.at(pos.x * width + pos.y);
     }
 
     bool inBounds(const Vector2D& pos) {
@@ -129,12 +129,13 @@ int main() {
 
     std::vector<Vector2D> visited_positions = {};
     while(true) {
-        if(!grid.inBounds(position + direction)) break;
-        if(grid.at(position + direction) == '#') {
+        auto new_pos = position + direction;
+        if(!grid.inBounds(new_pos)) break;
+        if(grid.at(new_pos) == '#') {
             direction.rotate90();
             continue;
         }
-        position += direction;
+        position = new_pos;
         visited_positions.push_back(position);
     }
 
@@ -149,8 +150,9 @@ int main() {
         grid.at(visited_positions.at(obstacle_pos)) = '#';
         bool is_loop = false;
         while(true) {
-            if(!grid.inBounds(position + direction)) break;
-            if(grid.at(position + direction) == '#') {
+            auto new_pos = position + direction;
+            if(!grid.inBounds(new_pos)) break;
+            if(grid.at(new_pos) == '#') {
                 direction.rotate90();
                 if(grid.is_visited(position, direction)) {
                     is_loop = true;
@@ -158,7 +160,7 @@ int main() {
                 }
                 grid.visit_with_dir(position, direction);
             } else {
-                position += direction;
+                position = new_pos;
             }
         }
         if(is_loop) {
