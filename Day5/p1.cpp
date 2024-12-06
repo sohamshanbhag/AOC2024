@@ -53,7 +53,7 @@ int main() {
         std::string item_input;
         int item;
         std::vector<int> present_list = {};
-        bool order;
+        bool order = false;
         while(std::getline(iss, item_input, ',')) {
             item = std::stoi(item_input);
             present_list.push_back(item);
