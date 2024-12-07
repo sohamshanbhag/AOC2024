@@ -9,8 +9,8 @@
 
 using dtype = long unsigned int;
 
-bool calc(dtype res, const std::vector<int>& values, int pos) {
-    auto present = values.at(pos);
+bool calc(dtype res, const std::span<int> values, int pos) {
+    auto present = values[pos];
     if(pos == 0) return (present == static_cast<int>(res));
     int pow_num_digits = std::pow(10, std::floor(std::log10(present))+1);
     if(static_cast<int>(res % pow_num_digits) == present) {
@@ -23,7 +23,7 @@ bool calc(dtype res, const std::vector<int>& values, int pos) {
     return false;
 }
 
-bool is_valid(dtype result, const std::vector<int>& rhs_values) {
+bool is_valid(dtype result, const std::span<int> rhs_values) {
     return calc(result, rhs_values, rhs_values.size()-1);
 }
 
