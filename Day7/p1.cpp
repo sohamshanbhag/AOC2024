@@ -25,6 +25,8 @@ bool is_valid(dtype result, const std::span<int> rhs_values) {
     std::unordered_map<std::string, dtype> memo {{"", rhs_values[0]}};
     for(auto i = 1uz; i < rhs_values.size(); ++i) {
         memo = calc(rhs_values, i, memo);
+        std::erase_if(memo, [&result](const auto& item) {return item.second > result;});
+        if(memo.empty()) break;
     }
     for(auto [key, val]: memo) if(val == result) return true;
 
@@ -44,7 +46,7 @@ int main(int argc, char** argv) {
         std::string input_line {};
         std::getline(input_file, input_line);
         if(input_file.eof()) break;
-        std::println("{}", input_line);
+        // std::println("{}", input_line);
 
         size_t col_pos = input_line.find(':');
         dtype result = std::stoull(input_line.substr(0, col_pos));

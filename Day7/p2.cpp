@@ -8,8 +8,7 @@
 #include <print>
 #include <iterator>
 
-using dtype = long long unsigned int;
-// using dtype = unsigned __int128;
+using dtype = long unsigned int;
 
 std::unordered_map<std::string, dtype> calc(const std::span<int> values, size_t pos, const std::unordered_map<std::string, dtype> memo) {
     std::unordered_map<std::string, dtype> output = {};
@@ -28,6 +27,7 @@ bool is_valid(dtype result, const std::span<int> rhs_values) {
     for(auto i = 1uz; i < rhs_values.size(); ++i) {
         memo = calc(rhs_values, i, memo);
         std::erase_if(memo, [&result](const auto& item) {return item.second > result;});
+        if(memo.empty()) break;
     }
     for(auto [key, val]: memo) if(val == result) return true;
 
