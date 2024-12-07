@@ -3,34 +3,24 @@
 #include <fstream>
 #include <sstream>
 #include <string>
-#include <unordered_map>
 #include <vector>
 #include <print>
 #include <iterator>
 
-using dtype = long long unsigned int;
-// using dtype = unsigned __int128;
+using dtype = long unsigned int;
 
-std::unordered_map<std::string, dtype> calc(const std::span<int> values, size_t pos, const std::unordered_map<std::string, dtype> memo) {
-    std::unordered_map<std::string, dtype> output = {};
-    for(auto [key, val]: memo) {
-        output[key + '+'] = val + values[pos];
-        output[key + '*'] = val * values[pos];
+bool calc(dtype res, const std::vector<int>& values, int pos) {
+    auto present = values.at(pos);
+    if(pos == 0) return (present == static_cast<int>(res));
+    if(res % present == 0) {
+        if(calc(res / present, values, pos-1)) return true;
     }
-
-    return output;
+    if(calc(res - present, values, pos-1)) return true;
+    return false;
 }
 
-bool is_valid(dtype result, const std::span<int> rhs_values) {
-    std::unordered_map<std::string, dtype> memo {{"", rhs_values[0]}};
-    for(auto i = 1uz; i < rhs_values.size(); ++i) {
-        memo = calc(rhs_values, i, memo);
-        std::erase_if(memo, [&result](const auto& item) {return item.second > result;});
-        if(memo.empty()) break;
-    }
-    for(auto [key, val]: memo) if(val == result) return true;
-
-    return false;
+bool is_valid(dtype result, const std::vector<int>& rhs_values) {
+    return calc(result, rhs_values, rhs_values.size()-1);
 }
 
 int main(int argc, char** argv) {
@@ -46,7 +36,6 @@ int main(int argc, char** argv) {
         std::string input_line {};
         std::getline(input_file, input_line);
         if(input_file.eof()) break;
-        // std::println("{}", input_line);
 
         size_t col_pos = input_line.find(':');
         dtype result = std::stoull(input_line.substr(0, col_pos));
