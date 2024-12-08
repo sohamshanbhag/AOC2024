@@ -3,6 +3,7 @@
 #include <fstream>
 #include <unordered_map>
 #include <ranges>
+#include <vector>
 #include <unordered_set>
 
 struct Vector2D {
@@ -52,7 +53,7 @@ int main(int argc, char** argv) {
 
     std::ifstream input_file {argv[1]};
 
-    std::unordered_map<char, std::unordered_set<Vector2D>> antennas {};
+    std::unordered_map<char, std::vector<Vector2D>> antennas {};
 
     size_t pos_x = 0;
     size_t pos_y_one = 0;
@@ -65,23 +66,25 @@ int main(int argc, char** argv) {
         if(c == '\n') { width = pos_y_one-1; pos_y_one = 0; ++pos_x; continue; }
         if(!std::isalnum(c)) { continue; }
         size_t pos_y = pos_y_one - 1;
-        antennas[c].emplace(pos_x, pos_y);
+        antennas[c].emplace_back(pos_x, pos_y);
     }
     size_t height = pos_x;
 
     std::unordered_set<Vector2D> antinodes {};
 
     for(const auto& [key, elem]: antennas) {
-
-        auto cart = std::ranges::views::cartesian_product(elem, elem);
-
-        for(auto [item1, item2]: cart) {
-            if(item1 == item2) continue;
-            auto diff = item1 - item2;
-            auto new_item1 = item1 + diff;
-            if(is_bounded(new_item1, width, height)) antinodes.insert(new_item1);
-            new_item1 = item2 - diff;
-            if(is_bounded(new_item1, width, height)) antinodes.insert(new_item1);
+        auto num_antennas = elem.size();
+        for(auto i = 0uz; i < num_antennas; ++i) {
+            const auto& item1 = elem[i];
+            for(auto j = i; j < num_antennas; ++j) {
+                const auto& item2 = elem[j];
+                if(item1 == item2) continue;
+                auto diff = item1 - item2;
+                auto new_item1 = item1 + diff;
+                if(is_bounded(new_item1, width, height)) antinodes.insert(new_item1);
+                new_item1 = item2 - diff;
+                if(is_bounded(new_item1, width, height)) antinodes.insert(new_item1);
+            }
         }
 
     }
