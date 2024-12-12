@@ -128,32 +128,18 @@ long int get_region_metrics(Grid& grid, int row, int column) {
                 perimeter += 2;
             } else if(this_neighbours.size() == 2) {
                 Vector2D sum_key = grid.get_xy(this_neighbours[0]) + grid.get_xy(this_neighbours[1]) - grid.get_xy(elem);
-                if(grid.get_index(sum_key) == elem) {
-                } else if(grid.at(sum_key) == grid.at(elem)) {
-                    perimeter += 1;
-                } else if(grid.at(sum_key) != grid.at(elem)) {
-                    perimeter += 2;
-                }
-            } else if(this_neighbours.size() == 3) {
-                for(auto i = 0uz; i < this_neighbours.size(); ++i) {
-                    for(auto j = i+1; j < this_neighbours.size(); ++j) {
-                        Vector2D sum_key = grid.get_xy(this_neighbours[i]) + grid.get_xy(this_neighbours[j]) - grid.get_xy(elem);
-                        if(grid.get_index(sum_key) == elem) {
-                        } else if(grid.at(sum_key) == grid.at(elem)) {
-                        } else if(grid.at(sum_key) != grid.at(elem)) {
-                            perimeter += 1;
-                        }
+                if(!(grid.get_index(sum_key) == elem)) {
+                    if(grid.at(sum_key) == grid.at(elem)) {
+                        perimeter += 1;
+                    } else if(grid.at(sum_key) != grid.at(elem)) {
+                        perimeter += 2;
                     }
                 }
-            } else if(this_neighbours.size() == 4 ) {
+            } else {
                 for(auto i = 0uz; i < this_neighbours.size(); ++i) {
                     for(auto j = i+1; j < this_neighbours.size(); ++j) {
                         Vector2D sum_key = grid.get_xy(this_neighbours[i]) + grid.get_xy(this_neighbours[j]) - grid.get_xy(elem);
-                        if(grid.get_index(sum_key) == elem) {
-                        } else if(grid.at(sum_key) == grid.at(elem)) {
-                        } else if(grid.at(sum_key) != grid.at(elem)) {
-                            perimeter += 1;
-                        }
+                        perimeter += grid.at(sum_key) != grid.at(elem);
                     }
                 }
             }
