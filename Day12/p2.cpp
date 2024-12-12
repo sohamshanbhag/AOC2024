@@ -111,6 +111,7 @@ std::vector<int> get_neighbours(const Grid& grid, const int pos) {
 }
 
 long int get_region_metrics(Grid& grid, int row, int column) {
+    // For perimeter, count corners
     std::unordered_set<int> neighbours = {grid.get_index({row, column})};
     std::unordered_set<int> region = {grid.get_index({row, column})};
     size_t area = 0;
