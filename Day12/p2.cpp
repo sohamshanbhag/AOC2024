@@ -113,7 +113,6 @@ std::vector<int> get_neighbours(const Grid& grid, const int pos) {
 long int get_region_metrics(Grid& grid, int row, int column) {
     std::unordered_set<int> neighbours = {grid.get_index({row, column})};
     std::unordered_set<int> region = {grid.get_index({row, column})};
-    size_t vertices = 0;
     size_t area = 0;
     size_t perimeter = 0;
 
@@ -123,18 +122,16 @@ long int get_region_metrics(Grid& grid, int row, int column) {
             auto this_neighbours = get_neighbours(grid, elem);
 
             if(this_neighbours.size() == 0) {
-                perimeter += 8;
-                vertices += 4;
-            } else if(this_neighbours.size() == 1) {
                 perimeter += 4;
-                vertices += 2;
+            } else if(this_neighbours.size() == 1) {
+                perimeter += 2;
             } else if(this_neighbours.size() == 2) {
                 Vector2D sum_key = grid.get_xy(this_neighbours[0]) + grid.get_xy(this_neighbours[1]) - grid.get_xy(elem);
                 if(grid.get_index(sum_key) == elem) {
                 } else if(grid.at(sum_key) == grid.at(elem)) {
-                    perimeter += 2; vertices += 1;
+                    perimeter += 1;
                 } else if(grid.at(sum_key) != grid.at(elem)) {
-                    perimeter += 4; vertices += 2;
+                    perimeter += 2;
                 }
             } else if(this_neighbours.size() == 3) {
                 for(auto i = 0uz; i < this_neighbours.size(); ++i) {
@@ -143,7 +140,7 @@ long int get_region_metrics(Grid& grid, int row, int column) {
                         if(grid.get_index(sum_key) == elem) {
                         } else if(grid.at(sum_key) == grid.at(elem)) {
                         } else if(grid.at(sum_key) != grid.at(elem)) {
-                            perimeter += 2; vertices += 1;
+                            perimeter += 1;
                         }
                     }
                 }
@@ -154,7 +151,7 @@ long int get_region_metrics(Grid& grid, int row, int column) {
                         if(grid.get_index(sum_key) == elem) {
                         } else if(grid.at(sum_key) == grid.at(elem)) {
                         } else if(grid.at(sum_key) != grid.at(elem)) {
-                            perimeter += 2; vertices += 1;
+                            perimeter += 1;
                         }
                     }
                 }
@@ -170,8 +167,6 @@ long int get_region_metrics(Grid& grid, int row, int column) {
     }
 
     for(auto elem: region) grid.at(elem) = '.';
-    perimeter -= vertices;
-
 
 
     return area * perimeter;
