@@ -1,4 +1,8 @@
 #include <cmath>
+#include <functional>
+#include <algorithm>
+#include <limits>
+#include <ranges>
 #include <unistd.h>
 #include <cassert>
 #include <regex>
@@ -22,78 +26,6 @@ struct Vector2D {// {{{
     }
     void print() const { std::print("{} {}",  x, y); }
     void println() const { std::println("{} {}",  x, y); }
-};
-// }}}
-
-class Grid {// {{{
-private:
-    size_t width {};
-    size_t height {};
-    std::vector<char> grid {};
-
-public:
-    Grid(size_t _width, size_t _height)
-        : width {_width}
-        , height {_height}
-        , grid(width * height, '.')
-    { }
-
-    size_t getWidth() { return width; }
-    size_t getHeight() { return height; }
-    int get_index(const Vector2D& pos) const { return pos.x + pos.y * width; }
-    Vector2D get_xy(const size_t& pos) const { return {static_cast<int>(pos % width), static_cast<int>(pos / width)}; }
-
-    char at(int i, int j) const { return at({i, j}); }
-
-    char& at(const Vector2D& pos) { return grid[get_index(pos)]; }
-
-    char at(const Vector2D& pos) const { return grid[get_index(pos)]; }
-    char at(const size_t pos) const { return grid[pos]; }
-    char& at(const size_t pos) { return grid[pos]; }
-
-    bool inBounds(const Vector2D& pos) const {
-        return 
-            (pos.y < static_cast<int>(height))
-        && (pos.x < static_cast<int>(width))
-        && (pos.y >= 0)
-        && (pos.x >= 0);
-    }
-
-    void print() const {
-        std::print("   ");
-        for(auto i = 0uz; i < width; ++i) {
-            std::print("{} ", i);
-        }
-        std::println();
-        for(auto i = 0uz; i < height; ++i) {
-            std::print("{}, ", i);
-            for(auto j = 0uz; j < width; ++j) {
-                std::print("{} ", at(j, i));
-            }
-            std::println();
-        }
-    }
-
-    void mark(const Vector2D& pos) {
-        at(pos) = '#';
-    }
-
-    int check_cont() {
-        size_t len = 10;
-        for(size_t i = 0; i < grid.size() - len; ++i) {
-            bool is_valid = true;
-            for(size_t j = 0; j < len; ++j) {
-                if(at(i+j) != '#') {
-                    i += j;
-                    is_valid = false;
-                    break;
-                }
-            }
-            if(is_valid) return true;
-        }
-        return false;
-    }
-
 };
 // }}}
 
@@ -122,13 +54,23 @@ int get_quad(const Vector2D& pos, int width, int height) {
     else return (pos.x > width/2) + 2 * (pos.y > height/2);
 }
 
-int main(int argc, char** argv) {
-    if(argc != 2) {
-        std::println("Usage: {} <input file>", argv[0]);
-        std::exit(1);
-    }
+double variance(const auto& pos) {
+    auto mean = std::ranges::fold_left(pos, (Vector2D){0, 0}, std::plus<>()) / pos.size();
+    auto variance = std::ranges::fold_left(
+        std::ranges::transform_view(pos, [&mean](const auto& val) {
+            return (Vector2D){(val.x - mean.x) * (val.x - mean.x), (val.y - mean.y) * (val.y - mean.y)};
+        })
+      , (Vector2D){0, 0}, std::plus<>()) / pos.size();
+    return variance.x + variance.y;
+}
 
-    constexpr int width = 101;
+int main(int argc, char** argv) {
+if(argc != 2) {
+std::println("Usage: {} <input file>", argv[0]);
+std::exit(1);
+}
+
+constexpr int width = 101;
     constexpr int height = 103;
 
     std::ifstream input_file {argv[1]};
@@ -148,8 +90,10 @@ int main(int argc, char** argv) {
     }
 
     int iter = 0;
-    while(true){
+    int min_iter = 0;
+    double min_var = std::numeric_limits<double>::max();
 
+    while(true){
         iter++;
         if(iter > width * height) break;
         for(auto& pos: robots) {
@@ -158,12 +102,13 @@ int main(int argc, char** argv) {
             pos.first.y = emod(pos.first.y, height);
         }
 
-        Grid grid(width, height);
-
-        for(auto pos: robots) grid.mark(pos.first);
-        if(grid.check_cont()) break;
+        auto var = variance(std::views::keys(robots));
+        if (var < min_var) {
+            min_iter = iter;
+            min_var = var;
+        }
     }
-    std::println("Tree found, iter: {}", iter);
+    std::println("Tree found, iter: {}", min_iter);
 
     return 0;
 }
