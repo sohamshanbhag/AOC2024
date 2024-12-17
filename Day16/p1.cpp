@@ -42,8 +42,14 @@ long long int get_cost(const Grid<char>& grid, const State& start_state, const V
 
         auto temp_pos = present.pos + present.dir;
         if(grid.at(temp_pos) != '#') boundary.emplace((State){temp_pos, present.dir}, present_val + 1);
-        boundary.emplace((State){present.pos, present.dir.rotate90clock()}, present_val + 1000);
-        boundary.emplace((State){present.pos, present.dir.rotate90anti()}, present_val + 1000);
+
+        auto temp_dir = present.dir.rotate90clock();
+        temp_pos = present.pos + temp_dir;
+        if(grid.at(temp_pos) != '#') boundary.emplace((State){present.pos + temp_dir, temp_dir}, present_val + 1001);
+
+        temp_dir = present.dir.rotate90anti();
+        temp_pos = present.pos + temp_dir;
+        if(grid.at(temp_pos) != '#') boundary.emplace((State){present.pos + temp_dir, temp_dir}, present_val + 1001);
     }
 
     return 0;

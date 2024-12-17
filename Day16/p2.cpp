@@ -44,6 +44,11 @@ size_t get_cost(const Grid<char>& grid, const State& start_state, const Vector2D
 
     auto gridsize = grid.getWidth() * grid.getHeight();
 
+    auto temp_idx = grid.get_index(start_state.pos) + get_dir_idx(start_state.dir)*gridsize;
+    visited[temp_idx].insert(temp_idx);
+
+    // Alternatives: Try backtracking, only keep relation between consecutive states
+
     while(boundary.size() != 0) {
 
         auto [present, present_val] = boundary.top();
@@ -72,17 +77,19 @@ size_t get_cost(const Grid<char>& grid, const State& start_state, const Vector2D
             visited[temp_idx].insert(visited[present_idx].begin(), visited[present_idx].end());
             visited[temp_idx].insert(temp_idx);
         }
-        {
-            auto temp_dir = present.dir.rotate90clock();
-            boundary.emplace((State){present.pos, temp_dir}, present_val + 1000);
-            auto temp_idx = grid.get_index(present.pos) + get_dir_idx(temp_dir)*gridsize;
+        auto temp_dir = present.dir.rotate90clock();
+        temp_pos = present.pos + temp_dir;
+        if(grid.at(temp_pos) != '#') {
+            boundary.emplace((State){present.pos + temp_dir, temp_dir}, present_val + 1001);
+            auto temp_idx = grid.get_index(present.pos + temp_dir) + get_dir_idx(temp_dir)*gridsize;
             visited[temp_idx].insert(visited[present_idx].begin(), visited[present_idx].end());
             visited[temp_idx].insert(temp_idx);
         }
-        {
-            auto temp_dir = present.dir.rotate90anti();
-            boundary.emplace((State){present.pos, temp_dir}, present_val + 1000);
-            auto temp_idx = grid.get_index(present.pos) + get_dir_idx(temp_dir)*gridsize;
+        temp_dir = present.dir.rotate90anti();
+        temp_pos = present.pos + temp_dir;
+        if(grid.at(temp_pos) != '#') {
+            boundary.emplace((State){present.pos + temp_dir, temp_dir}, present_val + 1001);
+            auto temp_idx = grid.get_index(present.pos + temp_dir) + get_dir_idx(temp_dir)*gridsize;
             visited[temp_idx].insert(visited[present_idx].begin(), visited[present_idx].end());
             visited[temp_idx].insert(temp_idx);
         }
