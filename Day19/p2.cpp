@@ -3,9 +3,7 @@
 #include <regex>
 #include <unordered_map>
 #include <unordered_set>
-#include <vector>
 #include <string>
-#include <string_view>
 
 std::unordered_set<std::string> get_inputs(const std::string& input, const std::regex& reg) {
     auto words_begin = std::sregex_iterator(input.begin(), input.end(), reg);
@@ -18,7 +16,7 @@ std::unordered_set<std::string> get_inputs(const std::string& input, const std::
     return allowed;
 }
 
-bool is_valid(const std::string_view input, const std::unordered_set<std::string>& allowed) {
+bool is_valid(const std::string& input, const std::unordered_set<std::string>& allowed) {
     if(input.size() == 0) return true;
     for(auto elem: allowed) {
         if(
@@ -33,21 +31,21 @@ bool is_valid(const std::string_view input, const std::unordered_set<std::string
 
 using dtype = long long int;
 
-dtype cached_num_variations(std::unordered_map<std::string, dtype>& memo, const std::string& input, const std::unordered_set<std::string>& allowed) {
+dtype cached_num_variations(std::unordered_map<std::string, dtype>& memo, const std::string& input, const std::unordered_set<std::string>& allowed, size_t allowed_size) {
     if(input.size() == 0) return 1;
     if(memo.contains(input)) return memo[input];
     if(!is_valid(input, allowed)) {
         memo[input] = 0;
         return 0;
     }
+    auto loop_lim = std::min(allowed_size, input.size());
     dtype sum = 0;
-    for(auto elem: allowed) {
-        if(elem.size() > input.size()) continue;
-        dtype val = (input.substr(0, elem.size()) == elem) * cached_num_variations(memo, input.substr(elem.size()), allowed);
-        sum += val;
+    for(auto i = 0uz; i < loop_lim; ++i) {
+        if(allowed.contains(input.substr(0, i+1))) {
+            sum += cached_num_variations(memo, input.substr(i+1), allowed, allowed_size);
+        }
     }
     memo[input] = sum;
-
     return sum;
 }
 
@@ -64,12 +62,16 @@ int main(int argc, char** argv) {
     std::unordered_set<std::string> allowed = get_inputs(input, entry_regex);
     // for(auto elem: allowed) std::println("{}", elem);
     std::getline(input_file, input);
-
+    size_t max_allowed = 0;
     std::unordered_map<std::string, dtype> memo;
+    for(auto elem: allowed) {
+        if(max_allowed < elem.size()) max_allowed = elem.size();
+    }
+
     dtype num_var = 0;
     while(input_file.peek() != EOF) {
         std::getline(input_file, input);
-        dtype var = cached_num_variations(memo, input, allowed);
+        dtype var = cached_num_variations(memo, input, allowed, max_allowed);
         // std::println("{} {}", input, var);
         // std::println("----");
         num_var += var;
