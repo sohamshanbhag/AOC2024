@@ -1,27 +1,30 @@
 #include <print>
 #include <fstream>
 #include <regex>
+#include <unordered_set>
 #include <vector>
 #include <string>
 #include <string_view>
 
-std::vector<std::string> get_inputs(const std::string& input, const std::regex& reg) {
+std::unordered_set<std::string> get_inputs(const std::string& input, const std::regex& reg) {
     auto words_begin = std::sregex_iterator(input.begin(), input.end(), reg);
     auto words_end = std::sregex_iterator();
-    std::vector<std::string> allowed = {};
+    std::unordered_set<std::string> allowed = {};
     for(auto word = words_begin; word != words_end; ++word){
         std::smatch m = *word;
-        allowed.push_back(m.str());
+        allowed.insert(m.str());
     }
     return allowed;
 }
 
-bool is_valid(const std::string_view input, const std::vector<std::string>& allowed) {
-    for(auto elem: allowed) {
-        if(input.size() == 0) return true;
+bool is_valid(const std::string& input, const std::unordered_set<std::string>& allowed, size_t max_allowed) {
+
+    if(input.size() == 0) return true;
+    auto lim = std::min(max_allowed, input.size());
+    for(auto i = 0uz; i < lim; ++i) {
         if(
-            input.substr(0, elem.size()) == elem
-            && is_valid(input.substr(elem.size()), allowed)
+            allowed.contains(input.substr(0, i+1)) &&
+            is_valid(input.substr(i+1), allowed, max_allowed)
         )
             return true;
     }
@@ -40,14 +43,18 @@ int main(int argc, char** argv) {
     std::regex entry_regex("([a-z]+)");
     std::string input {};
     std::getline(input_file, input);
-    std::vector allowed = get_inputs(input, entry_regex);
+    std::unordered_set allowed = get_inputs(input, entry_regex);
     // for(auto elem: allowed) std::println("{}", elem);
     std::getline(input_file, input);
+    size_t max_allowed = 0;
+    for(auto elem: allowed) {
+        if(max_allowed < elem.size()) max_allowed = elem.size();
+    }
 
     size_t num_valid = 0;
     while(input_file.peek() != EOF) {
         std::getline(input_file, input);
-        num_valid += is_valid(input, allowed);
+        num_valid += is_valid(input, allowed, max_allowed);
     }
 
     std::println("{}", num_valid);

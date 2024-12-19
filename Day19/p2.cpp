@@ -16,12 +16,14 @@ std::unordered_set<std::string> get_inputs(const std::string& input, const std::
     return allowed;
 }
 
-bool is_valid(const std::string& input, const std::unordered_set<std::string>& allowed) {
+bool is_valid(const std::string& input, const std::unordered_set<std::string>& allowed, size_t max_allowed) {
+
     if(input.size() == 0) return true;
-    for(auto elem: allowed) {
+    auto lim = std::min(max_allowed, input.size());
+    for(auto i = 0uz; i < lim; ++i) {
         if(
-            input.substr(0, elem.size()) == elem
-            && is_valid(input.substr(elem.size()), allowed)
+            allowed.contains(input.substr(0, i+1)) &&
+            is_valid(input.substr(i+1), allowed, max_allowed)
         )
             return true;
     }
@@ -34,7 +36,7 @@ using dtype = long long int;
 dtype cached_num_variations(std::unordered_map<std::string, dtype>& memo, const std::string& input, const std::unordered_set<std::string>& allowed, size_t allowed_size) {
     if(input.size() == 0) return 1;
     if(memo.contains(input)) return memo[input];
-    if(!is_valid(input, allowed)) {
+    if(!is_valid(input, allowed, allowed_size)) {
         memo[input] = 0;
         return 0;
     }
