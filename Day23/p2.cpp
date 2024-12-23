@@ -1,5 +1,4 @@
 #include <functional>
-#include <unistd.h>
 #include <print>
 #include <algorithm>
 #include <fstream>
@@ -54,14 +53,12 @@ int main(int argc, char** argv) {
 
     size_t size = 3;
     while(true) {
+        ++size;
         std::vector<std::vector<std::string>> temp_groups;
 
         for(std::string elem: keys) {
             for(std::vector<std::string> group: groups) {
-                bool add = true;
-                for(std::string item: group) {
-                    if(!map[elem].contains(item)) add = false;
-                }
+                bool add = std::ranges::all_of(group, [&map, &elem](const auto& item) { return map[elem].contains(item); });
                 if(add) {
                     group.push_back(elem);
                     std::ranges::sort(group);
@@ -80,9 +77,7 @@ int main(int argc, char** argv) {
         keys = {};
         for(auto elem: groups) for(auto item: elem) keys.insert(item);
 
-        ++size;
         std::println("{} {}", groups.size(), size);
-        usleep(1'000'000);
     }
 
     for(auto elem: groups[0]) std::print("{},", elem);
