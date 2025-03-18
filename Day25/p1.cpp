@@ -45,13 +45,13 @@ int main(int argc, char** argv) {
         if(!present_is_key) {
             for(auto [idx, elem]: input | std::views::enumerate) {
                 if(elem == '#') {
-                    ++present_config[idx];
+                    ++present_config[static_cast<size_t>(idx)];
                 }
             }
         } else {
             for(auto [idx, elem]: input | std::views::enumerate) {
                 if(elem == '.') {
-                    ++present_config[idx];
+                    ++present_config[static_cast<size_t>(idx)];
                 }
             }
         }
@@ -60,7 +60,7 @@ int main(int argc, char** argv) {
     else locks.push_back(present_config);
 
     for(auto& elem: keys) {
-        for(auto& item: elem) item = height - 2 - item;
+        for(auto& item: elem) item = static_cast<int>(height) - 2 - item;
     }
 
     size_t num_matches = 0;
